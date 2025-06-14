@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">        <!-- Hero Section -->
+        <div class="hero-section text-center">
+            <div class="container">
+                <h1 class="mb-4">
+                    <i class="fas fa-file-invoice-dollar me-3"></i>
+                    Professional Invoice Generator
+                </h1>
+                <p class="lead mb-4">
+                    Create beautiful, professional invoices in seconds. Generate PDFs, export data, and manage your billing efficiently with our modern invoice generator.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ url_for('create_invoice_page') }}" class="btn btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create New Invoice
+                    </a>
+                    <a href="{{ url_for('view_invoices_page') }}" class="btn btn-lg" style="background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); color: white;">
+                        <i class="fas fa-list me-2"></i>View Invoices
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                        </div>
+                        <h5 class="card-title">Professional PDFs</h5>
+                        <p class="card-text text-muted">
+                            Generate clean, professional PDF invoices with automatic calculations and beautiful formatting.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-calculator fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title">Smart Calculations</h5>
+                        <p class="card-text text-muted">
+                            Automatic subtotal, tax, and discount calculations. Never make a math error again.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-envelope fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title">Email Integration</h5>
+                        <p class="card-text text-muted">
+                            Send invoices directly to your clients via email with PDF attachments.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>        <!-- Statistics Section -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stats-card-modern" data-stat="invoices">
+                    <div class="stats-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <h3 id="total-invoices">0</h3>
+                    <p>Total Invoices</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card-modern" data-stat="revenue">
+                    <div class="stats-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3 id="total-revenue">$0</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card-modern" data-stat="month">
+                    <div class="stats-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 id="this-month">0</h3>
+                    <p>This Month</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card-modern" data-stat="average">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 id="avg-amount">$0</h3>
+                    <p>Average Amount</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-rocket text-primary me-2"></i>
+                            Quick Start
+                        </h5>
+                        <p class="card-text text-muted">
+                            New to invoice generation? Get started with our easy-to-use interface.
+                        </p>
+                        <a href="{{ url_for('create_invoice_page') }}" class="btn btn-primary">
+                            Start Creating <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line text-success me-2"></i>
+                            Invoice Management
+                        </h5>
+                        <p class="card-text text-muted">
+                            View, export, and manage all your invoices from one convenient location.
+                        </p>
+                        <a href="{{ url_for('view_invoices_page') }}" class="btn btn-success">
+                            Manage Invoices <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load statistics when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadStatistics();
+});
+
+function loadStatistics() {
+    fetch('/api/get-all-invoices')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const invoices = data.invoices;
+                const totalInvoices = invoices.length;
+                const totalRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0);
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+                
+                const thisMonthInvoices = invoices.filter(inv => {
+                    const invDate = new Date(inv.date);
+                    return invDate.getMonth() === currentMonth && invDate.getFullYear() === currentYear;
+                });
+                
+                const avgAmount = totalInvoices > 0 ? totalRevenue / totalInvoices : 0;
+                
+                document.getElementById('total-invoices').textContent = totalInvoices;
+                document.getElementById('total-revenue').textContent = '$' + totalRevenue.toFixed(2);
+                document.getElementById('this-month').textContent = thisMonthInvoices.length;
+                document.getElementById('avg-amount').textContent = '$' + avgAmount.toFixed(2);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading statistics:', error);
+        });
+}
+</script>
+{% endblock %}
